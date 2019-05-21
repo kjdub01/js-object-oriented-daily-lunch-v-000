@@ -1,101 +1,145 @@
 // global datastore
 let store = { neighborhoods: [], meals: [], customers: [], deliveries: [] };
 
-const Neighborhood = (() => {
-  let neighborhoodIds = 1;
-  return class {
-    constructor(name) {
-      this.id = neighborhoodIds++;
+let neighborhoodIds = 0
+let customerIds = 0
+let mealIds = 0
+let deliveryIds = 0
+
+ class Neighborhood{
+  constructor(name){
+    this.id = ++neighborhoodIds;
+    this.name = name;
+    store.neighborhoods.push(this);
+  }
+
+   deliveries(){
+    return store.deliveries.filter(
+      function(delivery){
+        return delivery.neighborhoodId === this.id
+      }.bind(this)
+    )
+  }
+
+    customers(){
+      return store.customers.filter(
+        function(customer){
+          return customer.neighborhoodId === this.id
+        }.bind(this)
+      )
+    }
+
+    meals(){
+      const meals = this.deliveries().map(
+        function(delivery){
+          return delivery.meal()
+        }
+      )
+      return [...new Set(meals)];
+    }
+  }
+
+  class Customer{
+    constructor(name, neighborhoodId){
+      this.id = ++customerIds;
       this.name = name;
-      store.neighborhoods.push(this);
+      this.neighborhoodId = neighborhoodId
+
+       store.customers.push(this)
     }
 
-    customers() {
-      return store.customers.filter(customer => customer.neighborhoodId === this.id);
+    deliveries(){
+      return store.deliveries.filter(
+        function(delivery){
+          return delivery.customerId === this.id
+        }.bind(this)
+      )
     }
 
-    meals() {
-      const allMeals = this.customers().map(customer => customer.meals());
-      const merged = [].concat.apply([], allMeals);
-      return [...new Set(merged)];
-    }
+       meals(){
+        return this.deliveries().map(
+          function(delivery){
+            return delivery.meal()
+          }
+        )
+      }
 
-    deliveries() {
-      return store.deliveries.filter(delivery => delivery.neighborhoodId === this.id);
+     totalSpent(){
+      return this.meals().reduce(
+        function(agg, meal){
+          return agg + meal.price
+        }, 0
+      )
     }
-  };
-})();
+  }
 
-const Meal = (() => {
-  let mealIds = 1;
-  return class {
-    constructor(title, price = 0) {
-      this.id = mealIds++;
+   class Meal{
+    constructor(title, price){
+      this.id = ++mealIds;
       this.title = title;
       this.price = price;
-      store.meals.push(this);
+
+       store.meals.push(this);
     }
 
-    deliveries() {
-      return store.deliveries.filter(delivery => delivery.mealId === this.id);
+     deliveries(){
+      return store.deliveries.filter(
+        function(delivery){
+          return delivery.mealId === this.id
+        }.bind(this)
+      )
     }
 
-    customers() {
-      const allCustomers = this.deliveries().map(delivery => delivery.customer());
-      return [...new Set(allCustomers)];
+     customers(){
+      const customers = this.deliveries().map(
+        function(delivery){
+          return delivery.customer()
+        }
+      )
+      return [...new Set(customers)];
     }
 
-    static byPrice() {
-      return store.meals.sort((a, b) => a.price < b.price);
-    }
-  };
-})();
-
-const Customer = (() => {
-  let customerIds = 1;
-  return class {
-    constructor(name, neighborhoodId) {
-      this.id = customerIds++;
-      this.name = name;
-      this.neighborhoodId = neighborhoodId;
-      store.customers.push(this);
+     static byPrice(){
+      return store.meals.sort(
+        function(a, b){
+          return b.price - a.price
+        }
+      )
     }
 
-    deliveries() {
-      return store.deliveries.filter(delivery => delivery.customerId === this.id);
-    }
+   }
 
-    meals() {
-      return this.deliveries().map(delivery => delivery.meal());
-    }
-
-    totalSpent() {
-      return this.meals().reduce((total, meal) => (total += meal.price), 0);
-    }
-  };
-})();
-
-const Delivery = (() => {
-  let deliveryIds = 1;
-  return class {
-    constructor(mealId, neighborhoodId, customerId) {
-      this.id = deliveryIds++;
+   class Delivery{
+    constructor(mealId, neighborhoodId, customerId){
+      this.id = ++deliveryIds;
       this.mealId = mealId;
       this.neighborhoodId = neighborhoodId;
       this.customerId = customerId;
-      store.deliveries.push(this);
+
+       store.deliveries.push(this);
     }
 
-    meal() {
-      return store.meals.find(meal => meal.id === this.mealId);
+     meal(){
+      return store.meals.find(
+        function(meal){
+          return meal.id === this.mealId
+        }.bind(this)
+      )
     }
 
-    neighborhood() {
-      return store.neighborhoods.find(neighborhood => neighborhood.id === this.neighborhoodId);
+     customer(){
+      return store.customers.find(
+        function(customer){
+          return customer.id === this.customerId
+        }.bind(this)
+      )
     }
 
-    customer() {
-      return store.customers.find(customer => customer.id === this.customerId);
+     neighborhood(){
+      return store.neighborhoods.find(
+        function(neighborhood){
+          return neighborhood.id === this.neighborhoodId
+        }.bind(this)
+      )
     }
-  };
-})();
+  }

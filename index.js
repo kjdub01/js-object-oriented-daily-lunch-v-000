@@ -51,10 +51,10 @@ class Customer {
 let mealId = 0;
 
 class Meal {
-  constructor(title, price) {
+  constructor(title, price = 0) {
     this.title = title;
     this.price = price;
-    this.id = ++mealId;
+    this.id = mealId++;
     store.meals.push(this);
   }
   

@@ -84,6 +84,6 @@ class Delivery {
   }
   
   meal() {
-    
+    store.meals.find(meal => )
   }
 }

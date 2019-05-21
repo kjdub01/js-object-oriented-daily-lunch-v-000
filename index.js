@@ -15,14 +15,14 @@ class Neighborhood {
   }
   
   customers() {
-      return store.customers.filter(customer => customer.neighborhoodId === this.id);
+    return store.customers.filter(customer => customer.neighborhoodId === this.id);
     }
  
  meals() {
-      const allMeals = this.customers().map(customer => customer.meals());
-      const merged = [].concat.apply([], allMeals);
-      return [...new Set(merged)];
-    } 
+    const allMeals = this.customers().map(customer => customer.meals());
+    const merged = [].concat.apply([], allMeals);
+    return [...new Set(merged)];
+  } 
 }
 
 let customerId = 0;
@@ -40,11 +40,11 @@ class Customer {
   }
   
   meals() {
-      return this.deliveries().map(delivery => delivery.meal());
+    return this.deliveries().map(delivery => delivery.meal());
   }
   
- totalSpent() {
-      return this.meals().reduce((total, meal) => (total += meal.price), 0);
+  totalSpent() {
+    return this.meals().reduce((total, meal) => (total += meal.price), 0);
   }
 }
 
@@ -59,6 +59,15 @@ class Meal {
   }
   
   deliveries() {
-      return store.deliveries.filter(delivery => delivery.mealId === this.id);
+    return store.deliveries.filter(delivery => delivery.mealId === this.id);
+  }
+  
+  customers() {
+    const allCustomers = this.deliveries().map(delivery => delivery.customer());
+    return [...new Set(allCustomers)];
+  }
+
+  static byPrice() {
+      return store.meals.sort((a, b) => a.price < b.price);
   }
 }

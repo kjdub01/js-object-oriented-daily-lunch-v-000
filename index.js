@@ -84,6 +84,14 @@ class Delivery {
   }
   
   meal() {
-    store.meals.find(meal => )
+    store.meals.find(meal => meal.id === this.mealId);
+  }
+  
+  customer() {
+    store.customers.find(customer => customer.id === this.customerId);
+  }
+  
+  neighborhood() {
+    store.neighborhood.find(neighborhood => neighborhood.id === this.neighborhoodId);
   }
 }
